@@ -1,2 +1,2 @@
 # wikipedia-rs
-A wikipedia api thing to eventually be implemented into CafeBot.
+Wikipedia search thing using its API. Is now used in the ^wiki command in https://github.com/justanotherstrange/CafeBot, but its CLI is usable. 
