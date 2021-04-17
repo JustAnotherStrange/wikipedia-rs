@@ -1,5 +1,6 @@
-use std::io::stdin;
 use serde_json::Value;
+use std::io::stdin;
+use webbrowser;
 #[tokio::main]
 async fn main() {
     println!("enter a search term");
@@ -9,10 +10,7 @@ async fn main() {
     let mut amount = String::new();
     stdin().read_line(&mut amount).expect("failed to read line");
     let link = format!("https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&generator=search&gsrnamespace=0&gsrlimit={}&gsrsearch='{}'", amount, choice);
-    let resp = reqwest::get(link)
-        .await.unwrap()
-        .text()
-        .await.unwrap();
+    let resp = reqwest::get(link).await.unwrap().text().await.unwrap();
     let json: Value = serde_json::from_str(&resp).unwrap(); // json deserialize
     // println!("{}", json["query"]["pages"][0]);
     let mut index = 1;
@@ -29,11 +27,13 @@ async fn main() {
     let mut choice_num: usize = choice.trim().parse().unwrap();
     choice_num = choice_num - 1;
     let link_url = format!("https://en.wikipedia.org/w/api.php?action=query&prop=info&format=json&pageids={}&inprop=url", ids[choice_num]);
-    let resp_url = reqwest::get(link_url)
-        .await.unwrap()
-        .text()
-        .await.unwrap();
+    let resp_url = reqwest::get(&link_url).await.unwrap().text().await.unwrap();
     let json_url: Value = serde_json::from_str(&resp_url).unwrap();
-    println!("{}", json_url["query"]["pages"][ids[choice_num]]["fullurl"]);
-    // let user pick item and link to it and/or copy link to clipboard and/or open in browser
+    let article_url = json_url["query"]["pages"][ids[choice_num]]["fullurl"]
+        .as_str()
+        .unwrap();
+    println!("{}", article_url);
+    if webbrowser::open(article_url).is_ok() {
+        println!("Opening in browser...");
+    }
 }
